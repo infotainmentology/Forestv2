@@ -16,24 +16,24 @@
 
 
 
-pthread_mutex_t dataMutex;
+pthread_mutex_t myDataMutex;
+pthread_mutex_t recievedDataMutex;
 pthread_mutex_t mpiMutex;
+pthread_mutex_t queueMutex;
 int bunnyCount = 10;
 int teddyCount = 5;
 int meadowCount = 5;
 
 
-struct animal{
-   int id;
-   int meadowId;
-   int size;
-   int lamport;
-   int partying;
-};
-
 int * meadows;
 
-struct animal me;
+
+int animal[5];
+//0 - animal id;
+//1 - animal size;
+//2 - meadow id;
+//3 - lampost
+//4 - just in case
 
 bool shouldIStartProgram()
 {
@@ -47,6 +47,27 @@ void initialize(int tid){
 
 
 }
+
+void iWannaParty(){
+
+
+}
+
+void *handleMsgRecieve() {
+
+	while(1) {	
+
+	}
+	pthread_exit(NULL);
+}
+
+
+
+
+
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -74,7 +95,7 @@ int main(int argc, char **argv)
 	{
 	    if (tid == 0)
 	    {
-		printf("Argv conversion unsuccessful");
+		printf("Argv conversion unsuccessful!!!!!");
 		//MPI_Abort(MPI_COMM_WORLD, -1);
 	    }
 	    startProgram = false;
@@ -96,40 +117,63 @@ int main(int argc, char **argv)
     if (startProgram)
     {
     	meadows = (int *) malloc(meadowCount * sizeof(int));
-	//if first bunny
-	if (tid == 0)
-	{
-		srand(time(NULL));
-		int i;
-		for (i = 0; i < meadowCount; ++i)
+		//if first bunny
+		if (tid == 0)
 		{
-		  meadows[i] = rand() % maxMeadowCapacity;
-	
-		}
-		int thNum;
-		//broadcasting meadows
-		for (thNum = 1; thNum < numOfThreads; thNum++)
+			srand(time(NULL));
+			int i;
+			for (i = 0; i < meadowCount; ++i)
+			{
+			  meadows[i] = rand() % maxMeadowCapacity;
+		
+			}
+			int thNum;
+			//broadcasting meadows ro all but tid = 0
+			for (thNum = 1; thNum < numOfThreads; thNum++)
+			{
+				MPI_Send(&meadows, meadowCount, MPI_INT, thNum, 100, MPI_COMM_WORLD);		  
+			}
+			  
+		  }
+		else //if not tid 0
 		{
-			MPI_Send(&meadows, meadowCount, MPI_INT, thNum, 100, MPI_COMM_WORLD);		  
+			MPI_Recv(&meadows, meadowCount, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	  
 		}
-		  
-	  }
-	else //if not tid 0
-	{
-		MPI_Recv(&meadows, meadowCount, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	  
-	}
-	
-	if (tid < bunnyCount)
-	{
-	   ; 
-	}
-	else
-	{
-	   ; 
-	}	
+		
 
+		//0 - animal id;
+//1 - animal size;
+//2 - meadow id;
+//3 - lampost
+//4 - just in case
+		if (tid < bunnyCount)
+		{
+		   animal[1] = 1;
+		}
+		else
+		{
+		   animal[1] = 4;
+		}	
+		animal[0] = tid;
+		animal[3] = 1;
+
+		//create new thread with 
+		pthread_t id;
+	  	pthread_create(&id, NULL, handleMsgRecieve, 
+	  		NULL);
+
+
+		while(1) {
+			printf("tid:%d: I'm sleeping\n", tid );
+			usleep(rand() % 5000000 + 2000000);
+			printf("tid:%d: I wanna party\n", tid);
+			iWannaParty();
+		}
+
+    	pthread_exit(&id);
 	
     }
+
 
     MPI_Finalize();
 }
