@@ -25,6 +25,7 @@ int teddyCount = 5;
 int meadowCount = 5;
 
 int numOfThreads,tid;
+MPI_Status status;
 
 
 int * meadows;
@@ -52,7 +53,6 @@ void initialize(int tid){
 
 void broadcastRequests(){
 
-	/*
 	int i = 0;
 	for(i = 0; i < numOfThreads; i++) {
 		if(i == tid)
@@ -76,12 +76,13 @@ void broadcastRequests(){
 			usleep(100000+ rand() % 1000);
 		}
 		sleep(1);
-		//pthread_mutex_lock(&queueActionMutex);
-		//pthread_mutex_unlock(&queueActionMutex);
 	}
-*/
+
 }
 
+void sendConfirmation(int toWhom){
+
+}
 
 void iWannaParty(){
 		srand(time(NULL));
@@ -93,7 +94,7 @@ void iWannaParty(){
 	pthread_mutex_lock(&queueMutex);
 	/////////////////////////////////////////////////TODO : IMPLEMENT FUNCTION!!!
 	//addToQueue(animal);
-	//
+	//////////////////////////////////////////////////////////////////////////////////////
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
 
@@ -102,9 +103,32 @@ void iWannaParty(){
 
 void *handleMsgRecieve() {
 
-	while(1) {	
+while(1) {	
+		int *received = (int *) malloc(5 * sizeof(int));
+		MPI_Request request;
+		pthread_mutex_lock(&mpiMutex);
+			MPI_Irecv(received , 5, MPI_INT, MPI_ANY_SOURCE, 
+				MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+		pthread_mutex_unlock(&mpiMutex);
+		while(1) {
+			pthread_mutex_lock(&mpiMutex);
+				int flag;
+				MPI_Test(&request, &flag, &status);
+				if(flag > 0) {
+					pthread_mutex_unlock(&mpiMutex);
+					break;
+				}
+			pthread_mutex_unlock(&mpiMutex);
+			usleep(1000000);
+		}	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+		//addToQueue(received);
+		
+		animal[3] = animal[3] + 1;	
 
+		printf("my tid = %d, recieved msg from %d with meadow %d tag %d and clock %d \n", animal[0], received[0], received[2], status.MPI_TAG, received[3]);
 
+		sendConfirmation(received[0]);
 	}
 	pthread_exit(NULL);
 }
