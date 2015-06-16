@@ -53,6 +53,9 @@ void initialize(int tid){
 
 }
 
+
+
+
 void broadcastRequests(){
 
 	MPI_Status rcvStatus;
@@ -88,6 +91,11 @@ void sendConfirmation(int toWhom){
 	MPI_Status rcvStatus;
 	
 	MPI_Request request;
+
+	pthread_mutex_lock(&myDataMutex);
+	animal[3] = animal[3] + 1;
+	pthread_mutex_lock(&queueMutex);
+
 	pthread_mutex_lock(&mpiMutex);
 	int ret = MPI_Isend(animal, 5, MPI_INT, toWhom, TAG_RESPONSE, MPI_COMM_WORLD, &request);
 	pthread_mutex_unlock(&mpiMutex);
@@ -134,19 +142,29 @@ broadcastMeadowInOut(int tag){
 
 }
 
+void party() {
+
+	printf("tid:%d: partying on meadow %d!\n", tid, animal[2]);
+	broadcastMeadowInOut(TAG_ENTER);
+	usleep(rand() % 6000000+2000000);
+	printf("tid:%d: leaving meadow %d!\n", tid, animal[2]);
+	broadcastMeadowInOut(TAG_LEAVE);
+}
+
 void iWannaParty(){
 		srand(time(NULL));
 
 	pthread_mutex_lock(&myDataMutex);
 	animal[3] = animal[3] + 1;
 	animal[2] = rand() % meadowCount;
-
 	pthread_mutex_lock(&queueMutex);
 	/////////////////////////////////////////////////TODO : IMPLEMENT FUNCTION!!!
 	//addToQueue(animal);
 	//////////////////////////////////////////////////////////////////////////////////////
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
+
+	tryParty();
 
 }
 
