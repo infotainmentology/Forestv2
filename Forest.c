@@ -69,7 +69,6 @@ void broadcastRequests(){
 		MPI_Isend(animal, 5, MPI_INT, i, TAG_JOIN,
               MPI_COMM_WORLD, &request);
 		pthread_mutex_unlock(&mpiMutex);
-		pthread_mutex_unlock(&myDataMutex);
 		while(1) {
 			pthread_mutex_lock(&mpiMutex);
 			int flag;
@@ -81,7 +80,7 @@ void broadcastRequests(){
 			pthread_mutex_unlock(&mpiMutex);
 			usleep(100000);
 		}
-		//sleep(1);
+		sleep(1);
 	}
 
 }
@@ -94,7 +93,7 @@ void sendConfirmation(int toWhom){
 
 	pthread_mutex_lock(&myDataMutex);
 	animal[3] = animal[3] + 1;
-	pthread_mutex_lock(&queueMutex);
+	pthread_mutex_unlock(&myDataMutex);
 
 	pthread_mutex_lock(&mpiMutex);
 	int ret = MPI_Isend(animal, 5, MPI_INT, toWhom, TAG_RESPONSE, MPI_COMM_WORLD, &request);
@@ -120,12 +119,12 @@ broadcastMeadowInOut(int tag){
 			continue;		
 
 		MPI_Request request;
-		pthread_mutex_lock(&myDataMutex);
+		//pthread_mutex_lock(&myDataMutex);
 		pthread_mutex_lock(&mpiMutex);
 		MPI_Isend(animal, 5, MPI_INT, i, tag,
               MPI_COMM_WORLD, &request);
 		pthread_mutex_unlock(&mpiMutex);
-		pthread_mutex_unlock(&myDataMutex);
+		//pthread_mutex_unlock(&myDataMutex);
 		while(1) {
 			pthread_mutex_lock(&mpiMutex);
 			int flag;
@@ -157,6 +156,7 @@ void iWannaParty(){
 	pthread_mutex_lock(&myDataMutex);
 	animal[3] = animal[3] + 1;
 	animal[2] = rand() % meadowCount;
+	pthread_mutex_unlock(&myDataMutex);
 	pthread_mutex_lock(&queueMutex);
 	/////////////////////////////////////////////////TODO : IMPLEMENT FUNCTION!!!
 	//addToQueue(animal);
@@ -164,7 +164,7 @@ void iWannaParty(){
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
 
-	tryParty();
+	//tryParty();
 
 }
 
@@ -188,7 +188,7 @@ void *handleMsgRecieve() {
 					break;
 				}
 			pthread_mutex_unlock(&mpiMutex);
-			usleep(1000000);
+			usleep(1000000 + rand() % 1000);
 		}	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 		
@@ -209,7 +209,7 @@ void *handleMsgRecieve() {
 			//handle meadow out
 			//
 		}
-		else if (rcvStatus.MPI_TAG == TAG_ENTER){
+		else if (rcvStatus.MPI_TAG == TAG_RESPONSE){
 			
 		}
 	
