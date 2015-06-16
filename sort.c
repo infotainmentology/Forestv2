@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
  void sort(int array[][5], int n)
  {
@@ -25,7 +26,6 @@
       }
     }
   }
- 
  }
  /*
 int main()

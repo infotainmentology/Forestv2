@@ -4,7 +4,9 @@
 #include <time.h>
 #include <stddef.h>
 #include <pthread.h>
-#include <stdbool.h>
+#include <string.h>
+
+#include "sort.c"
 
 #define maxMeadowCapacity 20
 
@@ -13,8 +15,10 @@
 #define TAG_LEAVE 3
 #define TAG_RESPONSE 4
 
-#define PARTY_NO 0
-#define PARTY_YES 1
+#define MSG_RESPONSE 0
+#define MSG_REQUEST 1
+
+#define MIN_ANIMAL_NUM
 
 
 
@@ -31,6 +35,7 @@ MPI_Status status;
 
 
 int * meadows;
+int * initMeadows;
 
 
 int animal[5];
@@ -39,22 +44,6 @@ int animal[5];
 //2 - meadow id;
 //3 - lampost
 //4 - just in case
-
-bool shouldIStartProgram()
-{
-	bool startProgram = true;
-
-	
-	return false;;
-}
-void initialize(int tid){
-
-
-
-}
-
-
-
 
 void broadcastRequests(){
 
@@ -141,6 +130,21 @@ broadcastMeadowInOut(int tag){
 
 }
 
+
+void tryParty(){
+	int ** subArray;
+	while (1){
+		//subArray = getSubArray(animal[2], 5);
+		/*
+		 if ((sizeof(subArray) / ( 5 * sizeof(int)) ) >= MIN_ANIMAL_NUM){
+		 	break;
+		 }
+		 */
+	}
+	usleep(3000000);
+	//subArray = getSubArray(animal[2], 5);
+
+}
 void party() {
 
 	printf("tid:%d: partying on meadow %d!\n", tid, animal[2]);
@@ -228,9 +232,7 @@ void *handleMsgRecieve() {
 int main(int argc, char **argv)
 {
 
-
-
-     bool startProgram = true;
+    int startProgram = 1;
 	
     MPI_Status status;
     MPI_Init(&argc, &argv); 
@@ -254,7 +256,7 @@ int main(int argc, char **argv)
 		printf("Argv conversion unsuccessful!!!!!");
 		//MPI_Abort(MPI_COMM_WORLD, -1);
 	    }
-	    startProgram = false;
+	    startProgram = 0;
 	}
     }
 
@@ -265,12 +267,12 @@ int main(int argc, char **argv)
 		{
 	    	printf("Argv conversion unsuccessful");
 		}
-	startProgram = false;
+	startProgram = 0;
     }
-    // startProgram = shouldIStartProgram();
+
     
     //if no errors were made during initialization
-    if (startProgram)
+    if (startProgram == 1)
     {
     	meadows = (int *) malloc(meadowCount * sizeof(int));
 		//if first bunny
@@ -282,26 +284,48 @@ int main(int argc, char **argv)
 			{
 			  meadows[i] = rand() % maxMeadowCapacity;
 		
-			}
+			}			
+
+     		memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
+/*
+     		int c;
+			for ( c = 0 ; c < meadowCount ; c++ )
+     			printf("meadow %d size =  %d\n", c, meadows[c]);
+
+     		for ( c = 0 ; c < meadowCount ; c++ )
+     			printf("meadow %d size =  %d\n", c, initMeadows[c]);
+*/
+
 			int thNum;
-			//broadcasting meadows ro all but tid = 0
+			//broadcasting meadows to all but tid = 0
 			for (thNum = 1; thNum < numOfThreads; thNum++)
 			{
-				MPI_Send(&meadows, meadowCount, MPI_INT, thNum, 100, MPI_COMM_WORLD);		  
+
+				int i=0;
+				for (i=0; i< meadowCount; i++)
+		  		{
+		    
+				    int toSend;
+				    toSend = meadows[i];
+				    MPI_Send(&toSend, 1, MPI_INT, thNum, 100, MPI_COMM_WORLD);
+				}
+				//MPI_Send(&meadows, meadowCount, MPI_INT, thNum, 100, MPI_COMM_WORLD);		  
 			}
 			  
 		  }
 		else //if not tid 0
 		{
-			MPI_Recv(&meadows, meadowCount, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	  
-		}
-		
 
-		//0 - animal id;
-//1 - animal size;
-//2 - meadow id;
-//3 - lampost
-//4 - just in case
+			int i=0;
+			int toRecieve = 0;
+		    for (i=0; i< meadowCount; i++)
+		    {
+				MPI_Recv(&toRecieve, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	  
+				meadows[i] = toRecieve;
+		    }
+     		memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
+		}
+
 		if (tid < bunnyCount)
 		{
 		   animal[1] = 1;
