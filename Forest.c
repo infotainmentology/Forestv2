@@ -24,6 +24,8 @@ int bunnyCount = 10;
 int teddyCount = 5;
 int meadowCount = 5;
 
+int numOfThreads,tid;
+
 
 int * meadows;
 
@@ -48,34 +50,20 @@ void initialize(int tid){
 
 }
 
-void iWannaParty(){
-		srand(time(NULL));
-
-	pthread_mutex_lock(&myDataMutex);
-	animal[3] = [animal[3] + 1;
-	animal[2] = rand() % meadowCount;
-
-	pthread_mutex_lock(&queueMutex);
-	/////////////////////////////////////////////////TODO : IMPLEMENT FUNCTION!!!
-	//addToQueue(animal);
-	//
-	pthread_mutex_unlock(&queueMutex);
-	broadcastRequests();
-
-}
-
 void broadcastRequests(){
+
+	/*
 	int i = 0;
-	for(i = 0; i < numOfThreads i++) {
+	for(i = 0; i < numOfThreads; i++) {
 		if(i == tid)
 			continue;		
 
 		MPI_Request request;
 		pthread_mutex_lock(&mpiMutex);
-		MPI_Isend(x, 4, MPI_INT, i, REQUEST_TAG,
+		MPI_Isend(animal, 5, MPI_INT, i, TAG_JOIN,
               MPI_COMM_WORLD, &request);
 		pthread_mutex_unlock(&mpiMutex);
-		pthread_mutex_unlock(&myDataMutex)
+		pthread_mutex_unlock(&myDataMutex);
 		while(1) {
 			pthread_mutex_lock(&mpiMutex);
 			int flag;
@@ -88,13 +76,29 @@ void broadcastRequests(){
 			usleep(100000+ rand() % 1000);
 		}
 		sleep(1);
-		pthread_mutex_lock(&queueActionMutex);
-		pthread_mutex_unlock(&queueActionMutex);
+		//pthread_mutex_lock(&queueActionMutex);
+		//pthread_mutex_unlock(&queueActionMutex);
 	}
+*/
+}
 
 
+void iWannaParty(){
+		srand(time(NULL));
+
+	pthread_mutex_lock(&myDataMutex);
+	animal[3] = animal[3] + 1;
+	animal[2] = rand() % meadowCount;
+
+	pthread_mutex_lock(&queueMutex);
+	/////////////////////////////////////////////////TODO : IMPLEMENT FUNCTION!!!
+	//addToQueue(animal);
+	//
+	pthread_mutex_unlock(&queueMutex);
+	broadcastRequests();
 
 }
+
 
 void *handleMsgRecieve() {
 
@@ -117,7 +121,7 @@ int main(int argc, char **argv)
 {
 
 
-    int numOfThreads,tid;
+
      bool startProgram = true;
 	
     MPI_Status status;
