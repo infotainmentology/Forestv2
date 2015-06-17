@@ -82,11 +82,14 @@ void sendConfirmation(int toWhom){
 
 	pthread_mutex_lock(&myDataMutex);
 	animal[3] = animal[3] + 1;
-	pthread_mutex_unlock(&myDataMutex);
+	animal[4] = 0;
 
 	pthread_mutex_lock(&mpiMutex);
 	int ret = MPI_Isend(animal, 5, MPI_INT, toWhom, TAG_RESPONSE, MPI_COMM_WORLD, &request);
 	pthread_mutex_unlock(&mpiMutex);
+	animal[4] = 1;
+	
+	pthread_mutex_unlock(&myDataMutex);
 	while(1) {
 		pthread_mutex_lock(&mpiMutex);				
 		int flag;
@@ -199,7 +202,7 @@ void *handleMsgRecieve() {
 		//increment lamport clock
 		animal[3] = animal[3] + 1;	
 
-		printf("my tid = %d, recieved msg from %d with meadow %d tag %d and clock %d \n", animal[0], received[0], received[2], rcvStatus.MPI_TAG, received[3]);
+		printf("my tid = %d, recieved msg from %d with meadow %d tag %d clock %d and [4] %d\n", animal[0], received[0], received[2], rcvStatus.MPI_TAG, received[3], received[4]);
 
 		if (rcvStatus.MPI_TAG == TAG_JOIN){
 			//addToQueue(received);
@@ -336,7 +339,7 @@ int main(int argc, char **argv)
 		}	
 		animal[0] = tid;
 		animal[3] = 1;
-		animal[4] = 0;
+		animal[4] = 1;
 
 		//create new thread with 
 		pthread_t id;
