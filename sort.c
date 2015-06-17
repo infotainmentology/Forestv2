@@ -99,8 +99,7 @@ int sizeArray=1;
   
   return arrayOut;
  }
-
-
+ 
  int** addToPartyLine(int addingArray[5], int **array){
    int i, c, k;
    int *next;
@@ -134,8 +133,6 @@ int sizeArray=1;
   
    return array;
  }
- 
- 
  /*
 int main()
 {
@@ -167,5 +164,4 @@ int main()
      printf("%d %d %d %d %d\n", arr[c][0], arr[c][1], arr[c][2], arr[c][3], arr[c][4]);
   return 0;
 }
-
 */

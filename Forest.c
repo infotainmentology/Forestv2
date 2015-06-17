@@ -153,11 +153,11 @@ int tryParty(){
 	pthread_mutex_unlock(&meadowsMutex);
 
 	//int ** subArray;
-	int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,2,9,1}};
-
+	//int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,2,9,1}};
+/*
 	if(tid == 0){
 		int nr = 2;
-		nr = numberOfOneMeadow(2, subArray, 6);
+		nr = numberOfOneMeadow(animal[2], subArray, sizeArray);
 		printf("nr of meadow 2 is %d\n", nr);
 		int ** arrayOut = animalsOfOneMeadow(2, subArray, arrayOut, 6);
 		int c;
@@ -168,19 +168,25 @@ int tryParty(){
 		int aOutSize = (int) sizeof(&arrayOut);
 		printf("size of array out is %d\n", aOutSize);
 
+//int ** arrayOut = animalsOfOneMeadow(2, subArray, arrayOut, 6);
 	}
-
+*/
 	while (1){
 		//int subArray[6][5] = {{1,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
 
 		//subArray = getSubArray(animal[2], 5);
+		int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray);
 		int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
+
+		printf("subarray size = %d, sizeArray = %d", subArraySize, sizeArray);
+
 		if (subArraySize >= MIN_ANIMAL_NUM){
 		 	break;
 		 }
 
 	}
 	usleep(3000000);
+	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray);
 	int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
 	int position = 0;
 	int sumWeights = animal[1];
