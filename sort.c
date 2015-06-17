@@ -1,4 +1,6 @@
-
+#include <stdio.h>
+#include <string.h>
+int sizeArray=1;
  void sort(int array[][5], int n)
  {
    int c, d, swap[5];
@@ -97,18 +99,49 @@
   
   return arrayOut;
  }
- 
- void addToPartyLine(int addingArray[5], int array[][5], int n){
-   
+
+
+ int** addToPartyLine(int addingArray[5], int **array){
+   int i, c, k;
+   int *next;
+  if(array == NULL)
+  {
+      array = malloc(sizeArray*sizeof(int *));
+      
+      for(i = 0; i < sizeArray; i++)
+    {
+    array[i] = malloc(5 * sizeof(int));
+    
+      
+    }
+    for(k = 0; k < 5; k++){
+      array[0][k]=addingArray[k];
+     // printf(addingArray[k]);
+    }
+    sizeArray++;    
+  } else{ 
+    printf("pppppp");
+    array = (int**) realloc (array, (sizeArray) * sizeof(int *));
+    
+      array[sizeArray-1] = (int *)realloc(array[sizeArray-1], sizeof(int)*5);   
+    for(k = 0; k < 5; k++){
+      array[sizeArray-1][k]=addingArray[k];
+      //printf(addingArray[k]);
+    }
+    sizeArray++;
+      
+  }
+  
+   return array;
  }
-
-
-/* 
+ 
+ 
+ /*
 int main()
 {
-  int c, n=6;
-  int **arrayOut;
- int array[6][5]={{11,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,11,0,1}, {4,8,4,8,1}, {8,9,11,9,1}};
+  int c, n=6, n1=1;
+  int **arrayOut, **arr;
+ int array[6][5]={{11,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
  
  sort(array, 6);        //array, numOfRows
  
@@ -125,6 +158,13 @@ int main()
  
  for ( c = 0 ; c < 2 ; c++ )
      printf("%d %d %d %d %d\n", arrayOut[c][0], arrayOut[c][1], arrayOut[c][2], arrayOut[c][3], arrayOut[c][4]);
+ arr=addToPartyLine(array[0], arr);
+ for ( c = 0 ; c < 1 ; c++ )
+     printf("%d %d %d %d %d\n", arr[c][0], arr[c][1], arr[c][2], arr[c][3], arr[c][4]);
+ arr=addToPartyLine(array[0], arr);
+  arr=addToPartyLine(array[0], arr);
+  for ( c = 0 ; c < 3 ; c++ )
+     printf("%d %d %d %d %d\n", arr[c][0], arr[c][1], arr[c][2], arr[c][3], arr[c][4]);
   return 0;
 }
 

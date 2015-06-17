@@ -30,12 +30,15 @@ int bunnyCount = 10;
 int teddyCount = 5;
 int meadowCount = 5;
 
+//int sizeArray=1;
+
 int numOfThreads,tid;
 MPI_Status status;
 
 
 int * meadows;
 int * initMeadows;
+int  **partyLine;
 
 
 int animal[5];
@@ -44,6 +47,10 @@ int animal[5];
 //2 - meadow id;
 //3 - lampost
 //4 - just in case
+
+
+
+
 
 void broadcastRequests(){
 
@@ -163,10 +170,6 @@ int tryParty(){
 
 	}
 
-
-
-
-
 	while (1){
 		//int subArray[6][5] = {{1,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
 
@@ -215,14 +218,12 @@ void iWannaParty(){
 	//increment lamport
 	animal[3] = animal[3] + 1;
 	animal[2] = rand() % meadowCount;
-	pthread_mutex_unlock(&myDataMutex);
 	pthread_mutex_lock(&queueMutex);
-	/////////////////////////////////////////////////TODO : IMPLEMENT FUNCTION!!!
-	//addToQueue(animal);
-	//////////////////////////////////////////////////////////////////////////////////////
+	partyLine=addToPartyLine(animal, partyLine);
+	pthread_mutex_unlock(&myDataMutex);
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
-
+ 	printf("%d %d %d %d %d\n", partyLine[0][0], partyLine[0][1], partyLine[0][2], partyLine[0][3], partyLine[0][4]);
 	while(tryParty() != 1){
 	;
 	}
@@ -261,6 +262,12 @@ void *handleMsgRecieve() {
 
 		if (rcvStatus.MPI_TAG == TAG_JOIN){
 			//addToQueue(received);
+			pthread_mutex_lock(&queueMutex);
+			partyLine=addToPartyLine(animal, partyLine);
+			pthread_mutex_unlock(&queueMutex);
+
+
+
 			sendConfirmation(received[0]);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_ENTER){
@@ -283,12 +290,6 @@ void *handleMsgRecieve() {
 
 
 
-
-
-
-
-
-
 int main(int argc, char **argv)
 {
 
@@ -307,17 +308,16 @@ int main(int argc, char **argv)
 		teddyCount = atoi(argv[2]);
 		meadowCount = atoi(argv[3]);
 	
-	if ( ((strcmp(argv[1], "0") != 0) && bunnyCount == 0) ||
-	    ((strcmp(argv[2], "0") != 0) && teddyCount == 0) ||
-	    ((strcmp(argv[3], "0") != 0) && meadowCount == 0) )
-	{
-	    if (tid == 0)
-	    {
-		printf("Argv conversion unsuccessful!!!!!");
-		//MPI_Abort(MPI_COMM_WORLD, -1);
-	    }
-	    startProgram = 0;
-	}
+		if ( ((strcmp(argv[1], "0") != 0) && bunnyCount == 0) ||
+		    ((strcmp(argv[2], "0") != 0) && teddyCount == 0) ||
+		    ((strcmp(argv[3], "0") != 0) && meadowCount == 0) )
+		{
+		    if (tid == 0)
+		    {
+				printf("Argv conversion unsuccessful!!!!!");
+		    }
+		    startProgram = 0;
+		}
     }
 
     if ( (numOfThreads != bunnyCount + teddyCount) || (bunnyCount < 0) ||
