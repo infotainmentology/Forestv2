@@ -30,8 +30,6 @@ int bunnyCount = 10;
 int teddyCount = 5;
 int meadowCount = 5;
 
-//int sizeArray=1;
-
 int numOfThreads,tid;
 MPI_Status status;
 
@@ -144,6 +142,7 @@ broadcastMeadowInOut(int tag){
 */
 int tryParty(){
 
+	//if all people haven't left the
 	pthread_mutex_lock(&meadowsMutex);
 	if(meadows[animal[2]] != initMeadows[animal[2]]){
 		pthread_mutex_unlock(&meadowsMutex);
@@ -172,33 +171,38 @@ int tryParty(){
 	}
 */
 	while (1){
-
+		pthread_mutex_lock(&queueMutex);
 		if (sizeArray - 1 >= MIN_ANIMAL_NUM){
+			pthread_mutex_unlock(&queueMutex);
 		 	break;
 		 }
+		 pthread_mutex_unlock(&queueMutex);
+		 usleep(100000);
 
 	}
 
 	usleep(3000000);
-
+	pthread_mutex_lock(&queueMutex);
 	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray -1 );
+	int tmpPosition = sizeArray;
+	pthread_mutex_unlock(&queueMutex);
 
 
 	//int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
-	printf("sizeArray = %d\n", sizeArray - 1);
+	printf("sizeArray = %d\n", tmpPosition  - 1);
 
 	int position = 0;
 	int sumWeights = animal[1];
-	for (position = 0; position < sizeArray - 1; position++){
+	for (position = 0; position < tmpPosition - 1; position++){
 		if(tid == 0)
-			printf("!!!!!!!!!!!!!!!%d\n",subArray[0][position]);
-		if (subArray[0][position] == animal[0]){
+			printf("!!!!!!!!!!!!!!!%d \n",subArray[position][0]);
+		if (subArray[position][0] == animal[0]){
 			break;
 		}
-		sumWeights += subArray[1][position];
+		sumWeights += subArray[position][1];
 	}
 	pthread_mutex_lock(&meadowsMutex);
-	if (sumWeights > meadows[animal[2]]){
+	if (sumWeights > meadows[animal[1]]){
 		pthread_mutex_unlock(&meadowsMutex);
 		return 0;
 	}
@@ -270,12 +274,10 @@ void *handleMsgRecieve() {
 		printf("my tid = %d, recieved msg from %d with meadow %d tag %d clock %d and [4] %d\n", animal[0], received[0], received[2], rcvStatus.MPI_TAG, received[3], received[4]);
 
 		if (rcvStatus.MPI_TAG == TAG_JOIN){
-			//addToQueue(received);
+
 			pthread_mutex_lock(&queueMutex);
 			partyLine=addToPartyLine(animal, partyLine);
 			pthread_mutex_unlock(&queueMutex);
-
-
 
 			sendConfirmation(received[0]);
 		}

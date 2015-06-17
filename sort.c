@@ -103,7 +103,7 @@ int sizeArray=1;
  int** addToPartyLine(int addingArray[5], int **array){
    int i, c, k;
    int *next;
-  if(array == NULL)
+  if(sizeArray == 1)
   {
       array = malloc(sizeArray*sizeof(int *));
       
