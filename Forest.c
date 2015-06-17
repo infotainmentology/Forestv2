@@ -18,12 +18,12 @@
 #define MSG_RESPONSE 0
 #define MSG_REQUEST 1
 
-#define MIN_ANIMAL_NUM
+#define MIN_ANIMAL_NUM 3
 
 
 
 pthread_mutex_t myDataMutex;
-pthread_mutex_t recievedDataMutex;
+pthread_mutex_t meadowsMutex;
 pthread_mutex_t mpiMutex;
 pthread_mutex_t queueMutex;
 int bunnyCount = 10;
@@ -69,7 +69,6 @@ void broadcastRequests(){
 			pthread_mutex_unlock(&mpiMutex);
 			usleep(100000);
 		}
-		sleep(1);
 	}
 
 }
@@ -88,7 +87,7 @@ void sendConfirmation(int toWhom){
 	int ret = MPI_Isend(animal, 5, MPI_INT, toWhom, TAG_RESPONSE, MPI_COMM_WORLD, &request);
 	pthread_mutex_unlock(&mpiMutex);
 	animal[4] = 1;
-	
+
 	pthread_mutex_unlock(&myDataMutex);
 	while(1) {
 		pthread_mutex_lock(&mpiMutex);				
@@ -129,14 +128,18 @@ broadcastMeadowInOut(int tag){
 			usleep(100000);
 		}
 	}
-
-
 }
 
 
-void tryParty(){
-	int ** subArray;
+int tryParty(){
+	//int ** subArray;
+	int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
 	while (1){
+		int subArray[6][5]={{1,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
+		int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
+		if (subArraySize >= MIN_ANIMAL_NUM){
+		 	break;
+		 }
 		//subArray = getSubArray(animal[2], 5);
 		/*
 		 if ((sizeof(subArray) / ( 5 * sizeof(int)) ) >= MIN_ANIMAL_NUM){
@@ -145,9 +148,26 @@ void tryParty(){
 		 */
 	}
 	usleep(3000000);
-	//subArray = getSubArray(animal[2], 5);
-
+	int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
+	int position = 0;
+	int sumWeights = 0;
+	for (position = 0; position < subArraySize; position++){
+		if (subArray[0][position] == animal[0]){
+			break;
+		}
+		sumWeights += subArray[1][position];
+	}
+	pthread_mutex_lock(&meadowsMutex);
+	if (sumWeights > meadows[animal[2]]){
+		pthread_mutex_unlock(&meadowsMutex);
+		return 0;
+	}
+	else{
+		pthread_mutex_unlock(&meadowsMutex);
+		return 1;
+	}
 }
+
 void party() {
 
 	printf("tid:%d: partying on meadow %d!\n", tid, animal[2]);
@@ -171,8 +191,11 @@ void iWannaParty(){
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
 
-	//tryParty();
+	while(tryParty() != 1){
+	;
+	}
 
+	party();
 }
 
 
@@ -209,12 +232,14 @@ void *handleMsgRecieve() {
 			sendConfirmation(received[0]);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_ENTER){
-			//handle meadow in
-			//
+			pthread_mutex_lock(&meadowsMutex);
+			meadows[received[2]] -= received[1];
+			pthread_mutex_unlock(&meadowsMutex);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_LEAVE){
-			//handle meadow out
-			//
+			pthread_mutex_lock(&meadowsMutex);
+			meadows[received[2]] += received[1];
+			pthread_mutex_unlock(&meadowsMutex);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_RESPONSE){
 			
