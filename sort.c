@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 int sizeArray=1;
- void sort(int array[][5], int n)
+ void sort(int ** array, int n)
  {
    int c, d, swap[5];
   for (c = 0 ; c < ( n - 1 ); c++)
@@ -28,7 +28,7 @@ int sizeArray=1;
  
  }
  
- int delete(int array[][5], int n, int del)
+ int delete(int ** array, int n, int del)
  {
    int i;
    
@@ -39,7 +39,7 @@ int sizeArray=1;
    n--;
    return n;
  }
- int numberOfOneMeadow(int meadow, int arrayIn[][5], int n){
+ int numberOfOneMeadow(int meadow, int ** arrayIn, int n){
    int i, j = 0;
    
    for(i = 0; i < n; i++)
@@ -51,7 +51,7 @@ int sizeArray=1;
    }
    return j;
  }
- int** animalsOfOneMeadow(int meadow, int arrayIn[][5], int **arrayOut, int n)
+ int** animalsOfOneMeadow(int meadow, int ** arrayIn, int **arrayOut, int n)
  {
     int i, j, licz=0, c, d, swap[5];
     j=numberOfOneMeadow(meadow, arrayIn, n);
@@ -119,7 +119,6 @@ int sizeArray=1;
     }
     sizeArray++;    
   } else{ 
-    printf("pppppp");
     array = (int**) realloc (array, (sizeArray) * sizeof(int *));
     
       array[sizeArray-1] = (int *)realloc(array[sizeArray-1], sizeof(int)*5);   

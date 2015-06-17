@@ -18,7 +18,7 @@
 #define MSG_RESPONSE 0
 #define MSG_REQUEST 1
 
-#define MIN_ANIMAL_NUM 3
+#define MIN_ANIMAL_NUM 1
 
 
 
@@ -172,25 +172,26 @@ int tryParty(){
 	}
 */
 	while (1){
-		//int subArray[6][5] = {{1,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
 
-		//subArray = getSubArray(animal[2], 5);
-		int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray);
-		int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
-
-		printf("subarray size = %d, sizeArray = %d", subArraySize, sizeArray);
-
-		if (subArraySize >= MIN_ANIMAL_NUM){
+		if (sizeArray - 1 >= MIN_ANIMAL_NUM){
 		 	break;
 		 }
 
 	}
+
 	usleep(3000000);
-	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray);
-	int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
+
+	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray -1 );
+
+
+	//int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
+	printf("sizeArray = %d\n", sizeArray - 1);
+
 	int position = 0;
 	int sumWeights = animal[1];
-	for (position = 0; position < subArraySize; position++){
+	for (position = 0; position < sizeArray - 1; position++){
+		if(tid == 0)
+			printf("!!!!!!!!!!!!!!!%d\n",subArray[0][position]);
 		if (subArray[0][position] == animal[0]){
 			break;
 		}
@@ -205,6 +206,8 @@ int tryParty(){
 		pthread_mutex_unlock(&meadowsMutex);
 		return 1;
 	}
+
+	return -1;
 }
 
 void party() {
