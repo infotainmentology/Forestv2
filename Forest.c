@@ -189,13 +189,13 @@ int tryParty(){
 
 
 	//int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
-	printf("sizeArray = %d\n", tmpPosition  - 1);
+	//printf("sizeArray = %d\n", tmpPosition  - 1);
 
 	int position = 0;
 	int sumWeights = animal[1];
 	for (position = 0; position < tmpPosition - 1; position++){
 		if(tid == 0)
-			printf("!!!!!!!!!!!!!!!%d \n",subArray[position][0]);
+			//printf("!!!!!!!!!!!!!!!%d \n",subArray[position][0]);
 		if (subArray[position][0] == animal[0]){
 			break;
 		}
@@ -236,7 +236,7 @@ void iWannaParty(){
 	pthread_mutex_unlock(&myDataMutex);
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
- 	printf("%d %d %d %d %d\n", partyLine[0][0], partyLine[0][1], partyLine[0][2], partyLine[0][3], partyLine[0][4]);
+ 	//printf("%d %d %d %d %d\n", partyLine[0][0], partyLine[0][1], partyLine[0][2], partyLine[0][3], partyLine[0][4]);
 	while(tryParty() != 1){
 	;
 	}
