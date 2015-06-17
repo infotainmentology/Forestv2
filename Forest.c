@@ -130,27 +130,57 @@ broadcastMeadowInOut(int tag){
 	}
 }
 
-
+/**
+*method determines whether an animal can enter a meadow and party
+*
+* @return 1 if animal can party and 0 itherwise
+*/
 int tryParty(){
+
+	pthread_mutex_lock(&meadowsMutex);
+	if(meadows[animal[2]] != initMeadows[animal[2]]){
+		pthread_mutex_unlock(&meadowsMutex);
+		usleep(100000);
+		return 0;
+	}
+	pthread_mutex_unlock(&meadowsMutex);
+
 	//int ** subArray;
-	int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
+	int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,2,9,1}};
+
+	if(tid == 0){
+		int nr = 2;
+		nr = numberOfOneMeadow(2, subArray, 6);
+		printf("nr of meadow 2 is %d\n", nr);
+		int ** arrayOut = animalsOfOneMeadow(2, subArray, arrayOut, 6);
+		int c;
+		for (c=0; c < nr; c++){
+			printf("%d %d %d %d %d\n", arrayOut[c][0], arrayOut[c][1], arrayOut[c][2], arrayOut[c][3], arrayOut[c][4]);
+		}
+
+		int aOutSize = (int) sizeof(&arrayOut);
+		printf("size of array out is %d\n", aOutSize);
+
+	}
+
+
+
+
+
 	while (1){
-		int subArray[6][5]={{1,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
+		//int subArray[6][5] = {{1,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
+
+		//subArray = getSubArray(animal[2], 5);
 		int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
 		if (subArraySize >= MIN_ANIMAL_NUM){
 		 	break;
 		 }
-		//subArray = getSubArray(animal[2], 5);
-		/*
-		 if ((sizeof(subArray) / ( 5 * sizeof(int)) ) >= MIN_ANIMAL_NUM){
-		 	break;
-		 }
-		 */
+
 	}
 	usleep(3000000);
 	int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
 	int position = 0;
-	int sumWeights = 0;
+	int sumWeights = animal[1];
 	for (position = 0; position < subArraySize; position++){
 		if (subArray[0][position] == animal[0]){
 			break;
@@ -178,9 +208,11 @@ void party() {
 }
 
 void iWannaParty(){
-		srand(time(NULL));
+		
 
+	srand(time(NULL));
 	pthread_mutex_lock(&myDataMutex);
+	//increment lamport
 	animal[3] = animal[3] + 1;
 	animal[2] = rand() % meadowCount;
 	pthread_mutex_unlock(&myDataMutex);
@@ -310,7 +342,7 @@ int main(int argc, char **argv)
 			int i;
 			for (i = 0; i < meadowCount; ++i)
 			{
-			  meadows[i] = rand() % maxMeadowCapacity;
+			  meadows[i] = rand() % maxMeadowCapacity + 2;
 		
 			}			
 
@@ -336,8 +368,7 @@ int main(int argc, char **argv)
 				    int toSend;
 				    toSend = meadows[i];
 				    MPI_Send(&toSend, 1, MPI_INT, thNum, 100, MPI_COMM_WORLD);
-				}
-				//MPI_Send(&meadows, meadowCount, MPI_INT, thNum, 100, MPI_COMM_WORLD);		  
+				}		  
 			}
 			  
 		  }
@@ -366,7 +397,7 @@ int main(int argc, char **argv)
 		animal[3] = 1;
 		animal[4] = 1;
 
-		//create new thread with 
+		//create new thread responsible gor handling mpi_recv
 		pthread_t id;
 	  	pthread_create(&id, NULL, handleMsgRecieve, 
 	  		NULL);
