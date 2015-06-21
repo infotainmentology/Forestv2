@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 int sizeArray=1;
+int oneMeadowSizeArray = 0;
  void sort(int ** array, int n)
  {
    int c, d, swap[5];
@@ -49,6 +50,7 @@ int sizeArray=1;
   j++;
      }
    }
+   oneMeadowSizeArray = j;
    return j;
  }
  int** animalsOfOneMeadow(int meadow, int ** arrayIn, int **arrayOut, int n)

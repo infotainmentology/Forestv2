@@ -201,21 +201,31 @@ if (tid == 2)
 	usleep(3000000);
 	pthread_mutex_lock(&queueMutex);
 	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray -1 );
-	int tmpPosition = sizeArray;
+	int tmpPosition = oneMeadowSizeArray;
 	pthread_mutex_unlock(&queueMutex);
 
 	if (tid == 2)
 	{
-		printf("tryPartyLabel 5, tmpPos = %d\n", tmpPosition);
+		printf("tryPartyLabel 5, oneMeadowSizeArray = %d\n", oneMeadowSizeArray);
+		int zzz = 0;
+		for (zzz = 0; zzz < oneMeadowSizeArray; zzz++){
+			printf("zzz = %d, %d, %d, %d, %d \n", zzz, subArray[zzz][0], subArray[zzz][1], subArray[zzz][2], subArray[zzz][3]);
+		}
 	}
 
 
-	//int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
+	//int subArrayS = (int) sizeof(subArray) / ( 5 * sizeof(int));
 	//printf("sizeArray = %d\n", tmpPosition  - 1);
 
 	int position = 0;
 	int sumWeights = animal[1];
+
+			if (tid == 2)
+				printf("sum weights == %d\n", animal[1]);
+
 	for (position = 0; position < tmpPosition - 1; position++){
+			if (tid == 2)
+				printf("it = %d, sum weights == %d\n", position, sumWeights);
 		
 		if (subArray[position][0] == tid){
 			if (tid == 2){
@@ -326,7 +336,7 @@ void *handleMsgRecieve() {
 		if (rcvStatus.MPI_TAG == TAG_JOIN){
 
 			pthread_mutex_lock(&queueMutex);
-			partyLine=addToPartyLine(animal, partyLine);
+			partyLine=addToPartyLine(received , partyLine);
 			pthread_mutex_unlock(&queueMutex);
 
 			sendConfirmation(received[0]);
@@ -418,7 +428,8 @@ int main(int argc, char **argv)
 			int i;
 			for (i = 0; i < meadowCount; ++i)
 			{
-			  meadows[i] = rand() % maxMeadowCapacity + 13;
+			  //meadows[i] = rand() % maxMeadowCapacity + 13;
+				meadows[i] = 5;
 		
 			}			
 
