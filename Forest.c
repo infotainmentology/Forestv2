@@ -18,7 +18,7 @@
 #define MSG_RESPONSE 0
 #define MSG_REQUEST 1
 
-#define MIN_ANIMAL_NUM 1
+#define MIN_ANIMAL_NUM 3
 
 
 
@@ -142,15 +142,27 @@ broadcastMeadowInOut(int tag){
 */
 int tryParty(){
 
-	//if all people haven't left the
+	if (tid == 2)
+	{
+		printf("tryPartyLabel 1\n");
+	}
+	//if all people haven't left the meadow
 	pthread_mutex_lock(&meadowsMutex);
 	if(meadows[animal[2]] != initMeadows[animal[2]]){
 		pthread_mutex_unlock(&meadowsMutex);
 		usleep(100000);
+		if (tid == 2)
+		{
+			printf("tryPartyLabel 2\n");
+		}
 		return 0;
 	}
 	pthread_mutex_unlock(&meadowsMutex);
 
+if (tid == 2)
+{
+	printf("tryPartyLabel 3\n");
+}
 	//int ** subArray;
 	//int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,2,9,1}};
 /*
@@ -170,10 +182,15 @@ int tryParty(){
 //int ** arrayOut = animalsOfOneMeadow(2, subArray, arrayOut, 6);
 	}
 */
+
 	while (1){
 		pthread_mutex_lock(&queueMutex);
 		if (sizeArray - 1 >= MIN_ANIMAL_NUM){
 			pthread_mutex_unlock(&queueMutex);
+			if (tid == 2)
+			{
+				printf("tryPartyLabel 4, sa = %d\n", sizeArray);
+			}
 		 	break;
 		 }
 		 pthread_mutex_unlock(&queueMutex);
@@ -187,6 +204,11 @@ int tryParty(){
 	int tmpPosition = sizeArray;
 	pthread_mutex_unlock(&queueMutex);
 
+	if (tid == 2)
+	{
+		printf("tryPartyLabel 5, tmpPos = %d\n", tmpPosition);
+	}
+
 
 	//int subArraySize = (int) sizeof(subArray) / ( 5 * sizeof(int));
 	//printf("sizeArray = %d\n", tmpPosition  - 1);
@@ -194,20 +216,32 @@ int tryParty(){
 	int position = 0;
 	int sumWeights = animal[1];
 	for (position = 0; position < tmpPosition - 1; position++){
-		if(tid == 0)
-			//printf("!!!!!!!!!!!!!!!%d \n",subArray[position][0]);
-		if (subArray[position][0] == animal[0]){
+		
+		if (subArray[position][0] == tid){
+			if (tid == 2){
+				printf("tag 8, subArray[position][0] == %d, position == %d, sumWeights == %d \n", subArray[position][0], position, sumWeights);
+			}
 			break;
 		}
 		sumWeights += subArray[position][1];
 	}
 	pthread_mutex_lock(&meadowsMutex);
-	if (sumWeights > meadows[animal[1]]){
+
+	// TODO: previous
+	//if (sumWeights > meadows[animal[1]]){
+	if (sumWeights > animal[1]){
+
+		if (tid == 2)
+		{
+			printf("tryPartyLabel 6\n %d, %d\n", sumWeights, meadows[animal[1]]);
+		}
 		pthread_mutex_unlock(&meadowsMutex);
 		return 0;
 	}
 	else{
 		pthread_mutex_unlock(&meadowsMutex);
+		if (tid == 0)
+			printf("tryPartyLabel 7\n %d, %d\n", sumWeights, meadows[animal[1]]);
 		return 1;
 	}
 
@@ -217,6 +251,22 @@ int tryParty(){
 void party() {
 
 	printf("tid:%d: partying on meadow %d!\n", tid, animal[2]);
+
+	int it;
+			for (it = 0; it < sizeArray -1; it++)
+			{
+				if (partyLine[it][0] == animal[0]){
+					sizeArray = delete(partyLine, sizeArray -1, it);
+					sizeArray--;
+					break;
+				}
+
+				}
+
+
+
+
+
 	broadcastMeadowInOut(TAG_ENTER);
 	usleep(rand() % 6000000+2000000);
 	printf("tid:%d: leaving meadow %d!\n", tid, animal[2]);
@@ -284,6 +334,21 @@ void *handleMsgRecieve() {
 		else if (rcvStatus.MPI_TAG == TAG_ENTER){
 			pthread_mutex_lock(&meadowsMutex);
 			meadows[received[2]] -= received[1];
+
+			int it;
+			pthread_mutex_lock(&queueMutex);
+			for (it = 0; it < sizeArray -1; it++)
+			{
+				if (partyLine[it][0] == received[0]){
+					sizeArray = delete(partyLine, sizeArray -1, it);
+					sizeArray--;
+					pthread_mutex_unlock(&queueMutex);
+					break;
+
+				}
+			}
+			pthread_mutex_unlock(&queueMutex);
+			
 			pthread_mutex_unlock(&meadowsMutex);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_LEAVE){
@@ -353,7 +418,7 @@ int main(int argc, char **argv)
 			int i;
 			for (i = 0; i < meadowCount; ++i)
 			{
-			  meadows[i] = rand() % maxMeadowCapacity + 2;
+			  meadows[i] = rand() % maxMeadowCapacity + 13;
 		
 			}			
 
@@ -416,7 +481,7 @@ int main(int argc, char **argv)
 
 		while(1) {
 			printf("tid:%d: I'm sleeping\n", tid );
-			usleep(rand() % 5000000 + 2000000);
+			//usleep(rand() % 5000000 + 2000000);
 			printf("tid:%d: I wanna party\n", tid);
 			iWannaParty();
 		}
