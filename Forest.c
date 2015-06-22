@@ -218,13 +218,11 @@ if (tid == 2)
 	}
 	pthread_mutex_lock(&meadowsMutex);
 
-	// TODO: previous
-	//if (sumWeights > meadows[animal[1]]){
-	if (sumWeights > animal[1]){
+	if (sumWeights > meadows[animal[2]]){
 
 		if (tid == 2)
 		{
-			printf("tryPartyLabel 6, %d, %d\n", sumWeights, meadows[tid]);
+			printf("tryPartyLabel 6, %d, %d\n", sumWeights, meadows[animal[2]]);
 		}
 		pthread_mutex_unlock(&meadowsMutex);
 		return 0;
@@ -232,7 +230,7 @@ if (tid == 2)
 	else{
 		pthread_mutex_unlock(&meadowsMutex);
 		if (tid == 0)
-			printf("tryPartyLabel 7, %d, %d\n", sumWeights, meadows[tid]);
+			printf("tryPartyLabel 7, %d, %d\n", sumWeights, meadows[animal[2]]);
 		return 1;
 	}
 
@@ -412,19 +410,11 @@ int main(int argc, char **argv)
 			for (i = 0; i < meadowCount; ++i)
 			{
 			  //meadows[i] = rand() % maxMeadowCapacity + 13;
-				meadows[i] = 5;
+				meadows[i] = 8;
 		
 			}			
 
      		memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
-/*
-     		int c;
-			for ( c = 0 ; c < meadowCount ; c++ )
-     			printf("meadow %d size =  %d\n", c, meadows[c]);
-
-     		for ( c = 0 ; c < meadowCount ; c++ )
-     			printf("meadow %d size =  %d\n", c, initMeadows[c]);
-*/
 
 			int thNum;
 			//broadcasting meadows to all but tid = 0
