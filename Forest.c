@@ -61,7 +61,7 @@ void broadcastRequests(){
 		MPI_Request request;
 		pthread_mutex_lock(&mpiMutex);
 		MPI_Isend(animal, 5, MPI_INT, i, TAG_JOIN,
-              MPI_COMM_WORLD, &request);
+			MPI_COMM_WORLD, &request);
 		pthread_mutex_unlock(&mpiMutex);
 		while(1) {
 			pthread_mutex_lock(&mpiMutex);
@@ -81,7 +81,7 @@ void broadcastRequests(){
 void sendConfirmation(int toWhom){
 
 	MPI_Status rcvStatus;
-	
+
 	MPI_Request request;
 
 	pthread_mutex_lock(&myDataMutex);
@@ -118,7 +118,7 @@ broadcastMeadowInOut(int tag){
 		//pthread_mutex_lock(&myDataMutex);
 		pthread_mutex_lock(&mpiMutex);
 		MPI_Isend(animal, 5, MPI_INT, i, tag,
-              MPI_COMM_WORLD, &request);
+			MPI_COMM_WORLD, &request);
 		pthread_mutex_unlock(&mpiMutex);
 		//pthread_mutex_unlock(&myDataMutex);
 		while(1) {
@@ -142,42 +142,47 @@ broadcastMeadowInOut(int tag){
 */
 int tryParty(){
 
-	if (tid == 2)
+/*	if (tid == 2)
 	{
 		printf("tryPartyLabel 1\n");
 	}
+*/
+
 	//if all animals haven't left the meadow yet
 	pthread_mutex_lock(&meadowsMutex);
 	if(meadows[animal[2]] != initMeadows[animal[2]]){
 		pthread_mutex_unlock(&meadowsMutex);
 		usleep(100000);
-		if (tid == 2)
+/*		if (tid == 2)
 		{
 			printf("tryPartyLabel 2\n");
 		}
+*/
 		return 0;
 	}
 	pthread_mutex_unlock(&meadowsMutex);
 
-if (tid == 2)
-{
-	printf("tryPartyLabel 3\n");
-}
-	
+/*	if (tid == 2)
+	{
+		printf("tryPartyLabel 3\n");
+	}
+*/	
+
 
 	while (1){
 		pthread_mutex_lock(&queueMutex);
 		//if there are enough animals to start a party
 		if (sizeArray - 1 >= MIN_ANIMAL_NUM){
 			pthread_mutex_unlock(&queueMutex);
-			if (tid == 2)
+/*			if (tid == 2)
 			{
 				printf("tryPartyLabel 4, sa = %d\n", sizeArray);
 			}
-		 	break;
-		 }
-		 pthread_mutex_unlock(&queueMutex);
-		 usleep(100000);
+*/
+			break;
+		}
+		pthread_mutex_unlock(&queueMutex);
+		usleep(100000);
 
 	}
 
@@ -187,7 +192,7 @@ if (tid == 2)
 	int tmpPosition = oneMeadowSizeArray;
 	pthread_mutex_unlock(&queueMutex);
 
-	if (tid == 2)
+/*	if (tid == 2)
 	{
 		printf("tryPartyLabel 5, oneMeadowSizeArray = %d\n", tmpPosition);
 		int zzz = 0;
@@ -197,21 +202,22 @@ if (tid == 2)
 		}
 
 	}
-
+*/
 
 	int position = 0;
 	int sumWeights = animal[1];
 
 
 	for (position = 0; position < tmpPosition; position++){
-		
-			if (tid == 2)
-				printf("it = %d, sum weights == %d\n", position, sumWeights);
-		
+
+/*		if (tid == 2)
+			printf("it = %d, sum weights == %d\n", position, sumWeights);
+*/
 		if (subArray[position][0] == tid){
-			if (tid == 2){
+/*			if (tid == 2){
 				printf("tag 8, subArray[position][0] == %d, position == %d, sumWeights == %d \n", subArray[position][0], position, sumWeights);
 			}
+*/
 			break;
 		}
 		sumWeights += subArray[position][1];
@@ -220,17 +226,19 @@ if (tid == 2)
 
 	if (sumWeights > meadows[animal[2]]){
 
-		if (tid == 2)
+/*		if (tid == 2)
 		{
 			printf("tryPartyLabel 6, %d, %d\n", sumWeights, meadows[animal[2]]);
 		}
+*/
 		pthread_mutex_unlock(&meadowsMutex);
 		return 0;
 	}
 	else{
 		pthread_mutex_unlock(&meadowsMutex);
-		if (tid == 0)
+/*		if (tid == 0)
 			printf("tryPartyLabel 7, %d, %d\n", sumWeights, meadows[animal[2]]);
+*/
 		return 1;
 	}
 
@@ -242,19 +250,15 @@ void party() {
 	printf("tid:%d: partying on meadow %d!\n", tid, animal[2]);
 
 	int it;
-			for (it = 0; it < sizeArray -1; it++)
-			{
-				if (partyLine[it][0] == animal[0]){
-					//sizeArray =
-					 delete(partyLine, sizeArray -1, 5, it);
-					sizeArray--;       //czemu tu zmniejszasz, w funkcji delete jest juz n--;
-					break;
-				}
+	for (it = 0; it < sizeArray -1; it++)
+	{
+		if (partyLine[it][0] == animal[0]){
+			delete(partyLine, sizeArray -1, 5, it);
+			sizeArray--;
+			break;
+		}
 
-				}
-
-
-
+	}
 
 
 	broadcastMeadowInOut(TAG_ENTER);
@@ -264,7 +268,7 @@ void party() {
 }
 
 void iWannaParty(){
-		
+
 
 	srand(time(NULL));
 	pthread_mutex_lock(&myDataMutex);
@@ -276,9 +280,8 @@ void iWannaParty(){
 	pthread_mutex_unlock(&myDataMutex);
 	pthread_mutex_unlock(&queueMutex);
 	broadcastRequests();
- 	//printf("%d %d %d %d %d\n", partyLine[0][0], partyLine[0][1], partyLine[0][2], partyLine[0][3], partyLine[0][4]);
 	while(tryParty() != 1){
-	;
+		;
 	}
 
 	party();
@@ -292,22 +295,22 @@ void *handleMsgRecieve() {
 		int *received = (int *) malloc(5 * sizeof(int));
 		MPI_Request request;
 		pthread_mutex_lock(&mpiMutex);
-			MPI_Irecv(received , 5, MPI_INT, MPI_ANY_SOURCE, 
-				MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+		MPI_Irecv(received , 5, MPI_INT, MPI_ANY_SOURCE, 
+			MPI_ANY_TAG, MPI_COMM_WORLD, &request);
 		pthread_mutex_unlock(&mpiMutex);
 		while(1) {
 			pthread_mutex_lock(&mpiMutex);
-				int flag;
-				MPI_Test(&request, &flag, &rcvStatus);
-				if(flag > 0) {
-					pthread_mutex_unlock(&mpiMutex);
-					break;
-				}
+			int flag;
+			MPI_Test(&request, &flag, &rcvStatus);
+			if(flag > 0) {
+				pthread_mutex_unlock(&mpiMutex);
+				break;
+			}
 			pthread_mutex_unlock(&mpiMutex);
 			usleep(1000000 + rand() % 1000);
 		}	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+
 		//increment lamport clock
 		animal[3] = animal[3] + 1;	
 
@@ -330,16 +333,15 @@ void *handleMsgRecieve() {
 			for (it = 0; it < sizeArray -1; it++)
 			{
 				if (partyLine[it][0] == received[0]){
-					//sizeArray = 
 					delete(partyLine, sizeArray -1, 5, it);
-					sizeArray--;     //czemu tu zmniejszasz, w funkcji delete jest juz n--;
+					sizeArray--;
 					pthread_mutex_unlock(&queueMutex);
 					break;
 
 				}
 			}
 			pthread_mutex_unlock(&queueMutex);
-			
+
 			pthread_mutex_unlock(&meadowsMutex);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_LEAVE){
@@ -348,9 +350,9 @@ void *handleMsgRecieve() {
 			pthread_mutex_unlock(&meadowsMutex);
 		}
 		else if (rcvStatus.MPI_TAG == TAG_RESPONSE){
-			
+
 		}
-	
+
 	}
 	pthread_exit(NULL);
 }
@@ -360,48 +362,48 @@ void *handleMsgRecieve() {
 int main(int argc, char **argv)
 {
 
-    int startProgram = 1;
-	
-    MPI_Status status;
-    MPI_Init(&argc, &argv); 
+	int startProgram = 1;
 
-    MPI_Comm_size( MPI_COMM_WORLD, &numOfThreads );
-    MPI_Comm_rank( MPI_COMM_WORLD, &tid );
-    
+	MPI_Status status;
+	MPI_Init(&argc, &argv); 
+
+	MPI_Comm_size( MPI_COMM_WORLD, &numOfThreads );
+	MPI_Comm_rank( MPI_COMM_WORLD, &tid );
+
 
 	if (argc >=4)
-    { 
-      	bunnyCount = atoi(argv[1]);
+	{ 
+		bunnyCount = atoi(argv[1]);
 		teddyCount = atoi(argv[2]);
 		meadowCount = atoi(argv[3]);
-	
-		if ( ((strcmp(argv[1], "0") != 0) && bunnyCount == 0) ||
-		    ((strcmp(argv[2], "0") != 0) && teddyCount == 0) ||
-		    ((strcmp(argv[3], "0") != 0) && meadowCount == 0) )
-		{
-		    if (tid == 0)
-		    {
-				printf("Argv conversion unsuccessful!!!!!");
-		    }
-		    startProgram = 0;
-		}
-    }
 
-    if ( (numOfThreads != bunnyCount + teddyCount) || (bunnyCount < 0) ||
-	(teddyCount < 0) || (meadowCount <1) )
-    {
+		if ( ((strcmp(argv[1], "0") != 0) && bunnyCount == 0) ||
+			((strcmp(argv[2], "0") != 0) && teddyCount == 0) ||
+			((strcmp(argv[3], "0") != 0) && meadowCount == 0) )
+		{
+			if (tid == 0)
+			{
+				printf("Argv conversion unsuccessful!!!!!");
+			}
+			startProgram = 0;
+		}
+	}
+
+	if ( (numOfThreads != bunnyCount + teddyCount) || (bunnyCount < 0) ||
+		(teddyCount < 0) || (meadowCount <1) )
+	{
 		if (tid == 0)
 		{
-	    	printf("Argv conversion unsuccessful");
+			printf("Argv conversion unsuccessful");
 		}
-	startProgram = 0;
-    }
+		startProgram = 0;
+	}
 
-    
-    //if no errors were made during initialization
-    if (startProgram == 1)
-    {
-    	meadows = (int *) malloc(meadowCount * sizeof(int));
+
+	//if no errors were made during initialization
+	if (startProgram == 1)
+	{
+		meadows = (int *) malloc(meadowCount * sizeof(int));
 		//if first bunny
 		if (tid == 0)
 		{
@@ -409,12 +411,12 @@ int main(int argc, char **argv)
 			int i;
 			for (i = 0; i < meadowCount; ++i)
 			{
-			  //meadows[i] = rand() % maxMeadowCapacity + 13;
+				//meadows[i] = rand() % maxMeadowCapacity + 13;
 				meadows[i] = 8;
-		
+
 			}			
 
-     		memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
+			memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
 
 			int thNum;
 			//broadcasting meadows to all but tid = 0
@@ -423,35 +425,35 @@ int main(int argc, char **argv)
 
 				int i=0;
 				for (i=0; i< meadowCount; i++)
-		  		{
-		    
-				    int toSend;
-				    toSend = meadows[i];
-				    MPI_Send(&toSend, 1, MPI_INT, thNum, 100, MPI_COMM_WORLD);
+				{
+
+					int toSend;
+					toSend = meadows[i];
+					MPI_Send(&toSend, 1, MPI_INT, thNum, 100, MPI_COMM_WORLD);
 				}		  
 			}
-			  
-		  }
+
+		}
 		else //if not tid 0
 		{
 
 			int i=0;
 			int toRecieve = 0;
-		    for (i=0; i< meadowCount; i++)
-		    {
+			for (i=0; i< meadowCount; i++)
+			{
 				MPI_Recv(&toRecieve, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);	  
 				meadows[i] = toRecieve;
-		    }
-     		memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
+			}
+			memcpy(&initMeadows, &meadows, meadowCount * sizeof(int));
 		}
 
 		if (tid < bunnyCount)
 		{
-		   animal[1] = 1;
+			animal[1] = 1;
 		}
 		else
 		{
-		   animal[1] = 4;
+			animal[1] = 4;
 		}	
 		animal[0] = tid;
 		animal[3] = 1;
@@ -459,23 +461,23 @@ int main(int argc, char **argv)
 
 		//create new thread responsible gor handling mpi_recv
 		pthread_t id;
-	  	pthread_create(&id, NULL, handleMsgRecieve, 
-	  		NULL);
+		pthread_create(&id, NULL, handleMsgRecieve, 
+			NULL);
 
 
 		while(1) {
 			printf("tid:%d: I'm sleeping\n", tid );
-			//usleep(rand() % 5000000 + 2000000);
+			usleep(rand() % 3000000 + 2000000);
 			printf("tid:%d: I wanna party\n", tid);
 			iWannaParty();
 		}
 
-    	pthread_exit(&id);
-	
-    }
+		pthread_exit(&id);
+
+	}
 
 
-    MPI_Finalize();
+	MPI_Finalize();
 }
 
 
