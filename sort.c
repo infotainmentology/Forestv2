@@ -69,9 +69,9 @@ int ** animalsOfOneMeadow(int meadow, int ** arrayIn, int n) {
    }
     for(i=0; i<j; i++){
    for(kk=0; kk<5; kk++){
-     printf("%d ", arrayOut[i][kk]);
+     //printf("%d ", arrayOut[i][kk]);
    }
-   printf("\n");
+   //printf("\n");
   }
   
   sort(arrayOut, j, 3,0);
@@ -93,7 +93,7 @@ int ** animalsOfOneMeadow(int meadow, int ** arrayIn, int n) {
  }
 
  int** addToPartyLine(int addingArray[5], int **array){
-   int i, c, k;
+   int i, c, k, j;
    int *next;
    int ncolumns = 5;
   if(sizeArray == 1)

@@ -18,7 +18,7 @@
 #define MSG_RESPONSE 0
 #define MSG_REQUEST 1
 
-#define MIN_ANIMAL_NUM 3
+#define MIN_ANIMAL_NUM 1
 
 
 
@@ -146,7 +146,7 @@ int tryParty(){
 	{
 		printf("tryPartyLabel 1\n");
 	}
-	//if all people haven't left the meadow
+	//if all animals haven't left the meadow yet
 	pthread_mutex_lock(&meadowsMutex);
 	if(meadows[animal[2]] != initMeadows[animal[2]]){
 		pthread_mutex_unlock(&meadowsMutex);
@@ -163,28 +163,11 @@ if (tid == 2)
 {
 	printf("tryPartyLabel 3\n");
 }
-	//int ** subArray;
-	//int subArray[6][5]={{1,0,0,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,2,9,1}};
-/*
-	if(tid == 0){
-		int nr = 2;
-		nr = numberOfOneMeadow(animal[2], subArray, sizeArray);
-		printf("nr of meadow 2 is %d\n", nr);
-		int ** arrayOut = animalsOfOneMeadow(2, subArray, arrayOut, 6);
-		int c;
-		for (c=0; c < nr; c++){
-			printf("%d %d %d %d %d\n", arrayOut[c][0], arrayOut[c][1], arrayOut[c][2], arrayOut[c][3], arrayOut[c][4]);
-		}
-
-		int aOutSize = (int) sizeof(&arrayOut);
-		printf("size of array out is %d\n", aOutSize);
-
-//int ** arrayOut = animalsOfOneMeadow(2, subArray, arrayOut, 6);
-	}
-*/
+	
 
 	while (1){
 		pthread_mutex_lock(&queueMutex);
+		//if there are enough animals to start a party
 		if (sizeArray - 1 >= MIN_ANIMAL_NUM){
 			pthread_mutex_unlock(&queueMutex);
 			if (tid == 2)
@@ -206,24 +189,22 @@ if (tid == 2)
 
 	if (tid == 2)
 	{
-		printf("tryPartyLabel 5, oneMeadowSizeArray = %d\n", oneMeadowSizeArray);
+		printf("tryPartyLabel 5, oneMeadowSizeArray = %d\n", tmpPosition);
 		int zzz = 0;
-		for (zzz = 0; zzz < oneMeadowSizeArray; zzz++){
-			printf("zzz = %d, %d, %d, %d, %d \n", zzz, subArray[zzz][0], subArray[zzz][1], subArray[zzz][2], subArray[zzz][3]);
+
+		for (zzz = 0; zzz < tmpPosition; zzz++){
+			printf("zzz = %d| animal = %d, %d, %d, %d \n", zzz, subArray[zzz][0], subArray[zzz][1], subArray[zzz][2], subArray[zzz][3]);
 		}
+
 	}
 
-
-	//int subArrayS = (int) sizeof(subArray) / ( 5 * sizeof(int));
-	//printf("sizeArray = %d\n", tmpPosition  - 1);
 
 	int position = 0;
 	int sumWeights = animal[1];
 
-			if (tid == 2)
-				printf("sum weights == %d\n", animal[1]);
 
-	for (position = 0; position < tmpPosition - 1; position++){
+	for (position = 0; position < tmpPosition; position++){
+		
 			if (tid == 2)
 				printf("it = %d, sum weights == %d\n", position, sumWeights);
 		
@@ -243,7 +224,7 @@ if (tid == 2)
 
 		if (tid == 2)
 		{
-			printf("tryPartyLabel 6\n %d, %d\n", sumWeights, meadows[animal[1]]);
+			printf("tryPartyLabel 6, %d, %d\n", sumWeights, meadows[tid]);
 		}
 		pthread_mutex_unlock(&meadowsMutex);
 		return 0;
@@ -251,7 +232,7 @@ if (tid == 2)
 	else{
 		pthread_mutex_unlock(&meadowsMutex);
 		if (tid == 0)
-			printf("tryPartyLabel 7\n %d, %d\n", sumWeights, meadows[animal[1]]);
+			printf("tryPartyLabel 7, %d, %d\n", sumWeights, meadows[tid]);
 		return 1;
 	}
 
@@ -266,8 +247,9 @@ void party() {
 			for (it = 0; it < sizeArray -1; it++)
 			{
 				if (partyLine[it][0] == animal[0]){
-					sizeArray = delete(partyLine, sizeArray -1, m, it);
-					//sizeArray--;       //czemu tu zmniejszasz, w funkcji delete jest juz n--;
+					//sizeArray =
+					 delete(partyLine, sizeArray -1, 5, it);
+					sizeArray--;       //czemu tu zmniejszasz, w funkcji delete jest juz n--;
 					break;
 				}
 
@@ -350,8 +332,9 @@ void *handleMsgRecieve() {
 			for (it = 0; it < sizeArray -1; it++)
 			{
 				if (partyLine[it][0] == received[0]){
-					sizeArray = delete(partyLine, sizeArray -1, m, it);
-					//sizeArray--;     //czemu tu zmniejszasz, w funkcji delete jest juz n--;
+					//sizeArray = 
+					delete(partyLine, sizeArray -1, 5, it);
+					sizeArray--;     //czemu tu zmniejszasz, w funkcji delete jest juz n--;
 					pthread_mutex_unlock(&queueMutex);
 					break;
 
