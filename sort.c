@@ -2,62 +2,52 @@
 #include <string.h>
 int sizeArray=1;
 int oneMeadowSizeArray = 0;
- void sort(int ** array, int n)
+
+ void sort(int ** array, int n, int first, int second)             //first=2, second =3
  {
-   int c, d, swap[5];
-  for (c = 0 ; c < ( n - 1 ); c++)
-  {
-    for (d = 0 ; d < n - c - 1; d++)
-    {
-      if (array[d][2] > array[d+1][2]) 
+   int c, d, swap[5], iter;
+  for (c = 1 ; c < n; c++){
+    for (d = 0 ; d < n - 1; d++)
+    { 
+      if (array[d][first] > array[d+1][first]) 
       {
-  memcpy(swap, array[d], sizeof(array[d]));
-  memcpy(array[d], array[d+1], sizeof(array[d+1]));
-  memcpy(array[d+1], swap, sizeof(swap));
+	for (iter = 0 ; iter < 5; iter++){
+	 int t = array[d][iter];
+	 array[d][iter] = array[d+1][iter];
+	 array[d+1][iter] = t;
+	}
       }
-      if (array[d][2] == array[d+1][2]) 
+      if (array[d][first] == array[d+1][first]) 
       {
-    if (array[d][3] > array[d+1][3]) 
-    {
-      memcpy(swap, array[d], sizeof(array[d]));
-      memcpy(array[d], array[d+1], sizeof(array[d+1]));
-      memcpy(array[d+1], swap, sizeof(swap));
-    }
+	if (array[d][second] > array[d+1][second]) 
+	{
+	  for (iter = 0 ; iter < 5; iter++){
+	 int t = array[d][iter];
+	 array[d][iter] = array[d+1][iter];
+	 array[d+1][iter] = t;
+	}
+	}
       }
     }
   }
- 
  }
- 
- int delete(int ** array, int n, int del)
- {
-   int i;
-   
-   for(i = del; i < n-1; i++)
-   {
-      memcpy(array[i], array[i+1], sizeof(array[i+1]));
-   }
-   n--;
-   return n;
- }
- int numberOfOneMeadow(int meadow, int ** arrayIn, int n){
+int numberOfOneMeadow(int meadow, int ** arrayIn, int n){
    int i, j = 0;
    
    for(i = 0; i < n; i++)
    {
      if(meadow == arrayIn[i][2])
      {
-  j++;
+	j++;
      }
    }
    oneMeadowSizeArray = j;
    return j;
  }
- int** animalsOfOneMeadow(int meadow, int ** arrayIn, int **arrayOut, int n)
- {
-    int i, j, licz=0, c, d, swap[5];
+int ** animalsOfOneMeadow(int meadow, int ** arrayIn, int n) {  
+   int **arrayOut;
+    int i, j, kk, licz=0;
     j=numberOfOneMeadow(meadow, arrayIn, n);
-   
    arrayOut = malloc(j * sizeof(int *));
   
   for(i = 0; i < j; i++)
@@ -70,99 +60,83 @@ int oneMeadowSizeArray = 0;
    {
      if(meadow == arrayIn[i][2])
      {
-  memcpy(arrayOut[licz], arrayIn[i], sizeof(arrayIn[i]));
-  licz++;
+       int iter;
+	for (iter = 0 ; iter < 5; iter++){
+	 arrayOut[licz][iter] = arrayIn[i][iter];
+	}
+	licz++;
      }
    }
-   
-    
-    
-  for (c = 0 ; c < ( j - 1 ); c++)
-  {
-    for (d = 0 ; d < j - c - 1; d++)
-    {
-      if (arrayOut[d][3] > arrayOut[d+1][3]) 
-      {
-  memcpy(swap, arrayOut[d], sizeof(arrayOut[d]));
-  memcpy(arrayOut[d], arrayOut[d+1], sizeof(arrayOut[d+1]));
-  memcpy(arrayOut[d+1], swap, sizeof(swap));
-      }
-      if (arrayOut[d][3] == arrayOut[d+1][3]) 
-      {
-    if (arrayOut[d][0] > arrayOut[d+1][0]) 
-    {
-      memcpy(swap, arrayOut[d], sizeof(arrayOut[d]));
-      memcpy(arrayOut[d], arrayOut[d+1], sizeof(arrayOut[d+1]));
-      memcpy(arrayOut[d+1], swap, sizeof(swap));
-    }
-      }
-    }
+    for(i=0; i<j; i++){
+   for(kk=0; kk<5; kk++){
+     printf("%d ", arrayOut[i][kk]);
+   }
+   printf("\n");
   }
   
+  sort(arrayOut, j, 3,0);
   return arrayOut;
  }
- 
+ int delete(int ** array, int n, int m, int del)
+ {
+   int i, k, p;
+   
+   for(i = del; i < n-1; i++)        // m - liczba kolumn
+   {
+     for(k = 0; k < m; k++)
+   {
+	  array[i][k] = array[i+1][k];
+   }
+   }
+   n--;
+   return n;
+ }
+
  int** addToPartyLine(int addingArray[5], int **array){
    int i, c, k;
    int *next;
+   int ncolumns = 5;
   if(sizeArray == 1)
-  {
-      array = malloc(sizeArray*sizeof(int *));
-      
-      for(i = 0; i < sizeArray; i++)
-    {
-    array[i] = malloc(5 * sizeof(int));
-    
-      
-    }
-    for(k = 0; k < 5; k++){
-      array[0][k]=addingArray[k];
-     // printf(addingArray[k]);
-    }
+  {    
+    array = malloc(sizeArray * sizeof(int *));
+	for(i = 0; i < sizeArray; i++)
+		{
+		array[i] = malloc(ncolumns * sizeof(int));
+		}
+	for(i = 0; i < sizeArray; i++){
+	  for(j = 0; j < ncolumns; j++){
+	    array[i][j] = addingArray[j];
+	    //printf("%d ", array[i][j]);
+	    
+	  }
+	  //printf("\n");
+	}
     sizeArray++;    
   } else{ 
-    array = (int**) realloc (array, (sizeArray) * sizeof(int *));
     
-      array[sizeArray-1] = (int *)realloc(array[sizeArray-1], sizeof(int)*5);   
-    for(k = 0; k < 5; k++){
-      array[sizeArray-1][k]=addingArray[k];
-      //printf(addingArray[k]);
-    }
+array = (int**)realloc(array, (sizeArray)*sizeof(int*));
+
+for(i = (sizeArray-1); i < (sizeArray); i++)
+array[i] = NULL;
+
+
+for (i = 0; i < (sizeArray); i++)
+array[i] = (int*)realloc(array[i], (ncolumns)*sizeof(int));
+
+for(i = (sizeArray-1); i < sizeArray; i++){
+	  for(j = 0; j < ncolumns; j++){
+	    array[i][j] = addingArray[j];
+	    //printf("%d ", array[i][j]);
+	    
+	  }
+	  //printf("\n");
+	}
+    
+      
     sizeArray++;
       
   }
   
    return array;
  }
- /*
-int main()
-{
-  int c, n=6, n1=1;
-  int **arrayOut, **arr;
- int array[6][5]={{11,0,11,0,1}, {2,5,2,5,1}, {2,4,2,4,1}, {4,0,4,0,1}, {4,8,4,8,1}, {8,9,8,9,1}};
  
- sort(array, 6);        //array, numOfRows
- 
- 
-  for ( c = 0 ; c < 6 ; c++ )
-     printf("%d %d %d %d %d\n", array[c][0], array[c][1], array[c][2], array[c][3], array[c][4]);
- printf("%d\n", sizeof(array));
- n=delete(array, n, 2);
- for ( c = 0 ; c < n ; c++ )
-     printf("%d %d %d %d %d\n", array[c][0], array[c][1], array[c][2], array[c][3], array[c][4]);
- 
- arrayOut=animalsOfOneMeadow(2, array,arrayOut, 6);
- 
- 
- for ( c = 0 ; c < 2 ; c++ )
-     printf("%d %d %d %d %d\n", arrayOut[c][0], arrayOut[c][1], arrayOut[c][2], arrayOut[c][3], arrayOut[c][4]);
- arr=addToPartyLine(array[0], arr);
- for ( c = 0 ; c < 1 ; c++ )
-     printf("%d %d %d %d %d\n", arr[c][0], arr[c][1], arr[c][2], arr[c][3], arr[c][4]);
- arr=addToPartyLine(array[0], arr);
-  arr=addToPartyLine(array[0], arr);
-  for ( c = 0 ; c < 3 ; c++ )
-     printf("%d %d %d %d %d\n", arr[c][0], arr[c][1], arr[c][2], arr[c][3], arr[c][4]);
-  return 0;
-}
-*/

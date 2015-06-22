@@ -200,7 +200,7 @@ if (tid == 2)
 
 	usleep(3000000);
 	pthread_mutex_lock(&queueMutex);
-	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, subArray, sizeArray -1 );
+	int ** subArray = animalsOfOneMeadow(animal[2], partyLine, sizeArray -1 );  
 	int tmpPosition = oneMeadowSizeArray;
 	pthread_mutex_unlock(&queueMutex);
 
@@ -266,8 +266,8 @@ void party() {
 			for (it = 0; it < sizeArray -1; it++)
 			{
 				if (partyLine[it][0] == animal[0]){
-					sizeArray = delete(partyLine, sizeArray -1, it);
-					sizeArray--;
+					sizeArray = delete(partyLine, sizeArray -1, m, it);
+					//sizeArray--;       //czemu tu zmniejszasz, w funkcji delete jest juz n--;
 					break;
 				}
 
@@ -350,8 +350,8 @@ void *handleMsgRecieve() {
 			for (it = 0; it < sizeArray -1; it++)
 			{
 				if (partyLine[it][0] == received[0]){
-					sizeArray = delete(partyLine, sizeArray -1, it);
-					sizeArray--;
+					sizeArray = delete(partyLine, sizeArray -1, m, it);
+					//sizeArray--;     //czemu tu zmniejszasz, w funkcji delete jest juz n--;
 					pthread_mutex_unlock(&queueMutex);
 					break;
 
